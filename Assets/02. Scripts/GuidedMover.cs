@@ -5,22 +5,35 @@ public class GuidedMover : MonoBehaviour
 {
 	private Rigidbody _rigidbody;
 
+	private GameObject _target;
+
+	private Vector3 _velocityForBezier;
+
 	public float Speed;
 	
 	// Use this for initialization
 	void Start()
 	{
 		_rigidbody = GetComponent<Rigidbody>();
+		_velocityForBezier = transform.forward * Speed;
 	}
 
 	public void Update()
 	{
-		transform.LookAt(transform.position + GetGuidedDirection());
-		//_rigidbody.velocity = transform.forward * Speed;
+
+		if(_target == null)
+		{
+			_target = FindTarget();
+		}
+		else
+		{
+			_velocityForBezier = GetGuidedDirection(_target);
+			transform.LookAt(transform.position + _velocityForBezier);
+			//_rigidbody.velocity = transform.forward * Speed;
+
+		}
 
 		transform.position += transform.forward * Speed * Time.deltaTime;
-
-
 	}
 
 	// Only for debug line.
@@ -31,14 +44,13 @@ public class GuidedMover : MonoBehaviour
 
 		Vector3[] points = {
 			transform.position,
-			transform.position + _rigidbody.velocity,
+			transform.position + _velocityForBezier,
 			target.transform.position,
 			target.transform.position + target.GetComponent<Rigidbody>().velocity
 		};
 
 		Debug.DrawLine(points[0], points[1], Color.green);
 		Debug.DrawLine(points[2], points[3], Color.green);
-
 
 		for (int i=1;i<=1000;i++)
 		{
@@ -71,18 +83,17 @@ public class GuidedMover : MonoBehaviour
 		float ttt = tt * t;
 
 		Vector3 p = uuu * transform.position; //first term  
-		p += 3 * uu * t * (transform.position + _rigidbody.velocity); //second term  
+		p += 3 * uu * t * (transform.position + _velocityForBezier); //second term  
 		p += 3 * u * tt * target.transform.position; //third term  
 		p += ttt * (target.transform.position + target.GetComponent<Rigidbody>().velocity); //fourth term  
 
 		return p;
 	}
 
-	Vector3 GetGuidedDirection()
+	Vector3 GetGuidedDirection(GameObject target)
 	{
 		Vector3 guidedDirection = transform.forward;
-
-		GameObject target = FindTarget();
+		
 		if(target == null)
 		{
 			return guidedDirection;
@@ -96,11 +107,11 @@ public class GuidedMover : MonoBehaviour
 		}
 
 		Vector3 targetDirection = target.transform.position - transform.position;
-		float estimatedTime = targetDirection.magnitude / _rigidbody.velocity.magnitude;
+		float estimatedTime = targetDirection.magnitude / _velocityForBezier.magnitude;
 
 		float bezierLength = getBezierLength(target);
 		float ratio = Speed * Time.deltaTime / bezierLength;
-		Vector3 bezierPoint = GetBezier(target, ratio);		
+		Vector3 bezierPoint = GetBezier(target, Time.deltaTime * bezierLength);		
 
 		guidedDirection = bezierPoint - transform.position;
 
@@ -134,7 +145,7 @@ public class GuidedMover : MonoBehaviour
 				target = asteroid;
 			}
 		}
-		
+				
 		return target;
 	}
 }
