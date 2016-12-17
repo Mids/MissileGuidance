@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Mover : MonoBehaviour {
 	protected Rigidbody _rigidbody;
+	protected GameObject _target;
 
 	public float Speed;
 

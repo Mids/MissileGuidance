@@ -3,8 +3,6 @@ using System.Collections;
 
 public class BezierMover : Mover
 {
-	private GameObject _target;
-
 	private Vector3 _velocityForBezier;
 	
 	// Use this for initialization
@@ -16,7 +14,6 @@ public class BezierMover : Mover
 
 	public void Update()
 	{
-
 		if(_target == null)
 		{
 			_target = FindTarget();
@@ -28,7 +25,6 @@ public class BezierMover : Mover
 			_rigidbody.rotation = Quaternion.LookRotation(_velocityForBezier);
 			_rigidbody.velocity = transform.forward * Speed;
 		}
-
 	}
 	
 	float getBezierLength(GameObject target)
