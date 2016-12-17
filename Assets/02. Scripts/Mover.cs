@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class Mover : MonoBehaviour {
-	private Rigidbody _rigidbody;
+	protected Rigidbody _rigidbody;
 
 	public float Speed;
 
@@ -15,5 +15,34 @@ public class Mover : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+	}
+
+	protected GameObject FindTarget()
+	{
+		GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
+		GameObject target = null;
+
+		if (asteroids.Length == 0)
+		{
+			return target;
+		}
+
+		// Get closest asteroid
+		float minDistance = float.MaxValue;
+
+		foreach (GameObject asteroid in asteroids)
+		{
+			Vector3 location = asteroid.transform.position;
+			Vector3 myLocation = transform.position;
+
+			Vector3 distance = location - myLocation;
+			if (distance.magnitude < minDistance)
+			{
+				minDistance = distance.magnitude;
+				target = asteroid;
+			}
+		}
+
+		return target;
 	}
 }

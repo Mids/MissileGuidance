@@ -1,15 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GuidedMover : MonoBehaviour
+public class BezierMover : Mover
 {
-	private Rigidbody _rigidbody;
-
 	private GameObject _target;
 
 	private Vector3 _velocityForBezier;
-
-	public float Speed;
 	
 	// Use this for initialization
 	void Start()
@@ -106,42 +102,10 @@ public class GuidedMover : MonoBehaviour
 		float estimatedTime = targetDirection.magnitude / _velocityForBezier.magnitude;
 
 		float bezierLength = getBezierLength(target);
-		Vector3 bezierPoint = GetBezier(target, Time.deltaTime);		
-		
+		Vector3 bezierPoint = GetBezier(target, Time.deltaTime);			
 
 		guidedDirection = bezierPoint - transform.position;
 
 		return guidedDirection;
-	}
-
-	GameObject FindTarget()
-	{
-		GameObject[] asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
-		GameObject target = null;
-
-		if (asteroids.Length == 0)
-		{
-			return target;
-		}
-
-		// Get closest asteroid
-		float minDistance = float.MaxValue;
-		Vector3 minVector = Vector3.zero;
-
-		foreach (GameObject asteroid in asteroids)
-		{
-			Vector3 location = asteroid.transform.position;
-			Vector3 myLocation = transform.position;
-
-			Vector3 distance = location - myLocation;
-			if(distance.magnitude < minDistance)
-			{
-				minDistance = distance.magnitude;
-				minVector = distance;
-				target = asteroid;
-			}
-		}
-				
-		return target;
 	}
 }
