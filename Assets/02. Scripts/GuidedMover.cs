@@ -24,19 +24,17 @@ public class GuidedMover : MonoBehaviour
 		if(_target == null)
 		{
 			_target = FindTarget();
+			transform.position += _velocityForBezier * Time.deltaTime;
 		}
 		else
 		{
 			_velocityForBezier = GetGuidedDirection(_target);
-			transform.LookAt(transform.position + _velocityForBezier);
-			//_rigidbody.velocity = transform.forward * Speed;
-
+			_rigidbody.rotation = Quaternion.LookRotation(_velocityForBezier);
+			_rigidbody.velocity = transform.forward * Speed;
 		}
 
-		transform.position += transform.forward * Speed * Time.deltaTime;
 	}
-
-	// Only for debug line.
+	
 	float getBezierLength(GameObject target)
 	{
 		float totalLength = 0;
@@ -44,13 +42,13 @@ public class GuidedMover : MonoBehaviour
 
 		Vector3[] points = {
 			transform.position,
-			transform.position + _velocityForBezier,
+			transform.position + _velocityForBezier * 20,
 			target.transform.position,
 			target.transform.position + target.GetComponent<Rigidbody>().velocity
 		};
-
+		
 		Debug.DrawLine(points[0], points[1], Color.green);
-		Debug.DrawLine(points[2], points[3], Color.green);
+		Debug.DrawLine(points[2], points[1], Color.green);
 
 		for (int i=1;i<=1000;i++)
 		{
@@ -61,10 +59,9 @@ public class GuidedMover : MonoBehaviour
 			float uuu = uu * u;
 			float ttt = tt * t;
 
-			Vector3 p = uuu * points[0]; //first term  
-			p += 3 * uu * t * points[1]; //second term  
-			p += 3 * u * tt * points[2]; //third term  
-			p += ttt * points[3]; //fourth term  
+			Vector3 p = uu * points[0]; //first term  
+			p += 2 * u * t * points[1]; //second term  
+			p += tt * points[2]; //fourth term  
 
 			totalLength += (p - last).magnitude;
 			Debug.DrawLine(last, p, Color.magenta);
@@ -82,10 +79,9 @@ public class GuidedMover : MonoBehaviour
 		float uuu = uu * u;
 		float ttt = tt * t;
 
-		Vector3 p = uuu * transform.position; //first term  
-		p += 3 * uu * t * (transform.position + _velocityForBezier); //second term  
-		p += 3 * u * tt * target.transform.position; //third term  
-		p += ttt * (target.transform.position + target.GetComponent<Rigidbody>().velocity); //fourth term  
+		Vector3 p = uu * transform.position; //first term  
+		p += 2 * u * t * (transform.position + _velocityForBezier*20); //second term  
+		p += tt * (target.transform.position); //fourth term  
 
 		return p;
 	}
@@ -110,8 +106,8 @@ public class GuidedMover : MonoBehaviour
 		float estimatedTime = targetDirection.magnitude / _velocityForBezier.magnitude;
 
 		float bezierLength = getBezierLength(target);
-		float ratio = Speed * Time.deltaTime / bezierLength;
-		Vector3 bezierPoint = GetBezier(target, Time.deltaTime * bezierLength);		
+		Vector3 bezierPoint = GetBezier(target, Time.deltaTime);		
+		
 
 		guidedDirection = bezierPoint - transform.position;
 
